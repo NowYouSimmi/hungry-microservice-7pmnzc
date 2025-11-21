@@ -1,0 +1,307 @@
+/* src/pages/spaces-usage.css */
+
+.spaces-usage-page {
+  padding: 1.5rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #e5e7eb;
+  cursor: pointer;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.tab.active {
+  background: #e5e7eb;
+  color: #020617;
+}
+
+/* space buttons */
+
+.space-button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.space-button {
+  text-align: left;
+  border-radius: 12px;
+  border: 1px solid #1f2937;
+  padding: 0.75rem 0.9rem;
+  background: #020617;
+  cursor: pointer;
+  transition: border 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+
+.space-button.selected {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.space-button-header {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.space-status-pill {
+  display: inline-block;
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.space-status-pill.free {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+}
+
+.space-status-pill.busy {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
+
+.space-button-sub {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* detail panel */
+
+.space-detail-panel {
+  margin-top: 1rem;
+  border-top: 1px solid #111827;
+  padding-top: 1rem;
+}
+
+.space-detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.space-detail-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.space-detail-header input[type="date"] {
+  background: #020617;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  padding: 0.25rem 0.4rem;
+  color: #e5e7eb;
+  font-size: 0.82rem;
+}
+
+/* timeline */
+
+.timeline-wrapper {
+  margin-top: 0.5rem;
+}
+
+.timeline-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-scale-mark {
+  flex: 1;
+  text-align: center;
+}
+
+.timeline-bar {
+  position: relative;
+  height: 60px;
+  border-radius: 10px;
+  background: #020617;
+  border: 1px solid #111827;
+  overflow: hidden;
+}
+
+.timeline-event {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 6px;
+  padding: 2px 4px;
+  font-size: 0.7rem;
+  background: rgba(129, 140, 248, 0.6);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.timeline-event-label {
+  pointer-events: none;
+}
+
+.timeline-now-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #f97316;
+}
+
+/* free slots */
+
+.free-slots-section {
+  margin-top: 1rem;
+}
+
+.free-slots-section h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.free-slots-list {
+  font-size: 0.8rem;
+  padding-left: 1rem;
+  color: #e5e7eb;
+}
+
+.free-slots-empty {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* all spaces table */
+
+.all-spaces-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+.all-spaces-table th,
+.all-spaces-table td {
+  border: 1px solid #111827;
+  padding: 0.35rem 0.5rem;
+  vertical-align: top;
+}
+
+.all-spaces-table th {
+  background: #020617;
+  color: #d1d5db;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.cell-busy {
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.cell-free {
+  background: rgba(22, 163, 74, 0.05);
+  color: #9ca3af;
+}
+
+.cell-events-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.cell-free-label {
+  font-style: italic;
+  color: #6b7280;
+}
+/* Header / tabs are already grid-ish; focus on All Spaces & controls */
+
+.all-spaces-controls {
+  margin: 0.5rem 0 0.3rem;
+}
+
+.all-spaces-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.all-spaces-controls-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.all-spaces-controls-row input[type="date"],
+.all-spaces-controls-row select {
+  background: #020617;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  padding: 0.18rem 0.6rem;
+  color: #e5e7eb;
+  font-size: 0.78rem;
+}
+
+/* Range label above table */
+.range-label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-bottom: 0.4rem;
+}
+
+/* Make the table horizontally scrollable on small screens */
+
+.all-spaces-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.all-spaces-table {
+  width: 100%;
+  min-width: 700px; /* force horizontal scroll on small screens */
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* Keep the rest of your existing table styles (th, td, .cell-busy, etc.) */
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .spaces-usage-page {
+    padding: 0.75rem;
+  }
+
+  .timeline-bar {
+    height: 52px;
+  }
+
+  .space-button-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .all-spaces-table {
+    font-size: 0.76rem;
+  }
+}
+/* Make space names readable */
+.space-button-header {
+  color: #ffffff !important;
+  font-weight: 600;
+}

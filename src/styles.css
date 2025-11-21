@@ -1,0 +1,1279 @@
+/* ===== GLOBAL RESET ===== */
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: white;
+}
+
+/* ===== APP LAYOUT ===== */
+.app {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #111827, #020617 60%);
+}
+
+/* ===== HEADER / MENU ===== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centered menu button */
+  padding: 0 1rem;
+  background: rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.menu-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.dropdown-menu button {
+  background: transparent;
+  border: none;
+  padding: 10px 14px;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.dropdown-menu button:hover {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  background: #6366f1;
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.btn.dark {
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.btn.sm {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+.btn.primary {
+  background: #6366f1;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ===== PAGES ===== */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.page h1 {
+  font-size: 2.1rem;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.page p {
+  line-height: 1.6;
+}
+
+/* ===== HOME ===== */
+.home {
+  min-height: calc(100vh - 52px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.home-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.home .btn {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.home .btn:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.home-logo {
+  max-width: 260px;
+}
+
+/* ===== FIELDS ===== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.field input,
+.field select,
+.field textarea {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: white;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(99, 102, 241, 0.9);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.readonly {
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 0.86rem;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: radial-gradient(
+    circle at top,
+    rgba(15, 23, 42, 0.7),
+    rgba(2, 6, 23, 0.4)
+  );
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 14px;
+  padding: 0.85rem 1rem 0.9rem;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(6px);
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.card-sub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.53);
+  margin-top: 2px;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.6rem;
+}
+
+/* ===== TEXT HELPERS ===== */
+.center {
+  text-align: center;
+}
+
+.muted {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.78rem;
+}
+
+.error {
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fee2e2;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #d1fae5;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+/* ===== MODALS ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 430px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.35);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem 0.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 0.7rem 1rem 1rem;
+}
+
+.modal-actions {
+  padding: 0.5rem 1rem 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.use-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.use-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.07);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.use-event {
+  font-size: 0.8rem;
+}
+
+.use-loc {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.use-qty {
+  font-weight: 500;
+}
+
+/* ===== SCHEDULE PAGE ===== */
+.schedule-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.schedule-day-block {
+  background: rgba(2, 6, 23, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 16px;
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+}
+
+.schedule-day-header {
+  padding: 1rem 1.1rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 60%,
+    transparent 100%
+  );
+}
+
+.schedule-date {
+  display: inline-block;
+  font-size: 1.35rem; /* bigger for prominence */
+  font-weight: 700; /* stronger weight */
+  color: #f9fafb; /* slightly brighter white */
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(248, 250, 252, 0.08);
+  border-radius: 0.75rem;
+  padding: 7px 14px 8px;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.015em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); /* soft glow for contrast */
+}
+
+.schedule-subtle {
+  color: rgba(226, 232, 240, 0.4);
+  font-size: 0.73rem;
+  margin-top: 2px;
+}
+
+.schedule-items {
+  padding: 0.9rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.schedule-item-card {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.04);
+  border-radius: 14px;
+  padding: 0.5rem 0.5rem 0.6rem 0.6rem;
+}
+
+.schedule-time-cell {
+  display: flex;
+  align-items: flex-start;
+}
+
+.schedule-time-pill {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+}
+
+.schedule-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-item-top {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.schedule-dept-pill {
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 9999px;
+  padding: 0.1rem 0.6rem 0.2rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.schedule-badge {
+  background: rgba(244, 63, 94, 0.07);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  border-radius: 9999px;
+  padding: 0.05rem 0.5rem 0.1rem;
+  font-size: 0.64rem;
+  color: #fda4af;
+}
+
+.schedule-activity {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.schedule-staff {
+  font-size: 0.72rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.schedule-notes {
+  font-size: 0.68rem;
+  color: rgba(226, 232, 240, 0.35);
+}
+
+/* ===== VENUES ===== */
+.venue-card {
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 14px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+
+.venue-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.15);
+}
+
+.venue-title {
+  font-weight: 600;
+}
+
+.venue-sub {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+/* ===== PHOTO GALLERY (top bar) ===== */
+.gallery-top {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* ===== CHECKBOX ===== */
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 720px) {
+  .page {
+    padding: 1.4rem 0.9rem 3rem;
+  }
+
+  .schedule-item-card {
+    flex-direction: column;
+  }
+
+  .schedule-time-cell {
+    width: auto !important;
+  }
+
+  .home {
+    padding-top: 1rem;
+  }
+
+  /* keep header centered on mobile too */
+  .app-header {
+    justify-content: center;
+  }
+}
+
+/* ===== TABLES (for flybar specs etc.) ===== */
+table {
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+  padding: 0.35rem 0.25rem;
+  font-size: 0.8rem;
+}
+
+/* ===== LINKS ===== */
+a {
+  color: #9ecfff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== PAGE WRAPPER ===== */
+.page {
+  background: radial-gradient(
+    circle at top,
+    #13171f 0%,
+    #0d1014 40%,
+    #0b0d10 100%
+  );
+  min-height: 100vh;
+  padding: 1.5rem 1.5rem 4.5rem;
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* ===== HEADER ROW (title + toggle) ===== */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.schedule-header h1 {
+  font-size: 1.65rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.checkbox-label input {
+  accent-color: #94a3b8;
+}
+
+/* ===== DAY BLOCK ===== */
+.schedule-day-block {
+  background: rgba(5, 7, 10, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.07);
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  backdrop-filter: blur(3px);
+}
+
+/* ===== SCHEDULE DAY HEADERS ===== */
+.schedule-day-header {
+  padding: 1rem 1.1rem 0.6rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.04);
+  background: radial-gradient(
+    circle at top,
+    rgba(148, 163, 184, 0.12),
+    rgba(9, 11, 14, 0)
+  );
+}
+
+.schedule-day-header .schedule-date {
+  font-size: 1.6rem !important; /* larger title for real days */
+  font-weight: 700 !important;
+  color: #f9fafb !important;
+  background: rgba(30, 41, 59, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 8px 18px;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.015em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.schedule-subtle {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.42);
+}
+
+/* ===== ITEMS WRAPPER ===== */
+.schedule-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.7rem 1.1rem 1.05rem;
+}
+
+/* ===== ITEM CARD ===== */
+.schedule-item-card {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(11, 15, 20, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.04);
+  border-radius: 0.8rem;
+  padding: 0.6rem 0.75rem 0.65rem;
+  align-items: flex-start;
+  transition: border 120ms ease-out, background 120ms ease-out;
+}
+
+.schedule-item-card:hover {
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(13, 16, 21, 0.7);
+}
+
+/* ===== TIME CELL ===== */
+.schedule-time-cell {
+  width: 78px;
+  min-width: 70px;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.15rem;
+}
+
+.schedule-time-pill {
+  background: rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+  padding: 0.2rem 0.5rem 0.3rem;
+  font-size: 0.65rem;
+  color: #e2e8f0;
+  text-align: center;
+  line-height: 1.1;
+  min-width: 60px;
+}
+
+/* ===== ITEM BODY ===== */
+.schedule-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+/* dept pill */
+.schedule-dept-pill {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 9999px;
+  padding: 0.15rem 0.45rem 0.2rem;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: rgba(226, 232, 240, 0.9);
+  white-space: nowrap;
+}
+
+.schedule-badge {
+  background: rgba(236, 252, 203, 0.04);
+  border: 1px solid rgba(190, 242, 100, 0.45);
+  color: #eaffaf;
+  border-radius: 9999px;
+  padding: 0.15rem 0.45rem 0.2rem;
+  font-size: 0.58rem;
+  white-space: nowrap;
+}
+
+/* activity title */
+.schedule-activity {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.25rem;
+}
+
+/* staff + notes */
+.schedule-staff {
+  font-size: 0.68rem;
+  color: rgba(226, 232, 240, 0.8);
+  margin-bottom: 0.1rem;
+}
+
+.schedule-staff strong {
+  font-weight: 600;
+}
+
+.schedule-notes {
+  font-size: 0.64rem;
+  color: rgba(203, 213, 225, 0.78);
+  line-height: 1.35;
+}
+
+/* ===== EMPTY / MUTED ===== */
+.muted {
+  font-size: 0.7rem;
+  color: rgba(226, 232, 240, 0.4);
+}
+
+.center {
+  text-align: center;
+}
+
+/* ===== STATES FROM YOUR JSX (dark time / quiet time / toolbox talk) ===== */
+/* we'll soften them to match the app */
+.schedule-item-card[style*="dark time"] {
+  /* JS inline style will override; this is just a fallback */
+}
+
+.schedule-item-card[style*="quiet time"] {
+  /* fallback same as above */
+}
+
+/* the JSX sets inline background for toolbox, but let's define a base anyway */
+.schedule-item-card.toolbox,
+.schedule-item-card[data-kind="toolbox"] {
+  background: rgba(248, 250, 252, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+/* ===== ERROR ===== */
+.error {
+  background: rgba(248, 113, 113, 0.09);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fee2e2;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.65rem;
+  font-size: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+/* ====== MEAL / BREAK CARDS ====== */
+.schedule-item-card.meal-break {
+  background: rgba(148, 163, 184, 0.18); /* soft neutral grey */
+  border: 1px solid rgba(226, 232, 240, 0.25);
+  color: rgba(248, 250, 252, 0.95);
+}
+
+.schedule-item-card.meal-break:hover {
+  background: rgba(148, 163, 184, 0.25);
+  border-color: rgba(226, 232, 240, 0.35);
+}
+
+.schedule-item-card.meal-break .schedule-activity {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #f8fafc;
+}
+
+.schedule-item-card.meal-break .schedule-dept-pill,
+.schedule-item-card.meal-break .schedule-badge {
+  display: none; /* hide department and badge for breaks */
+}
+
+/* ===== MODAL OVERLAY (later addition) ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #1c1c1e;
+  border: 1px solid #333;
+  border-radius: 14px;
+  width: min(420px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.1rem 1.2rem 1.2rem;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.row {
+  background: #1d1d1f;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row-title {
+  font-weight: 600;
+}
+
+.row-notes {
+  font-size: 0.78rem;
+  color: #aaa;
+}
+
+.row-q {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chip {
+  background: #2a2a2d;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.74rem;
+}
+
+.chip-link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Inventory page buttons – match home style but independent */
+.inventory-btn {
+  background-color: #2a2a2a; /* slightly lighter than #222 */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inventory-btn:hover {
+  background-color: #383838;
+  box-shadow: 0 0 8px rgba(158, 207, 255, 0.3);
+}
+
+.inventory-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(158, 207, 255, 0.4);
+}
+
+/* make inventory page buttons look like home buttons */
+.inventory .btn {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.inventory .btn:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* ===== RESPONSIVE (second block) ===== */
+@media (max-width: 720px) {
+  .schedule-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .schedule-item-card {
+    flex-direction: row;
+  }
+
+  .schedule-time-cell {
+    width: 65px;
+  }
+
+  .schedule-date {
+    font-size: 1rem;
+  }
+}
+/* Add this to App.css or styles.css — whichever is global */
+.page {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .page {
+    width: 100%;
+    padding: 1.1rem 0.85rem 4.5rem;
+  }
+}
+/* styles.css */
+.inv-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px; /* so the checkout column doesn’t get squashed off-screen */
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 768px) {
+  .inv-scroll-hint {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-bottom: 0.25rem;
+  }
+}
+/* mobile scroll for inventory tables */
+.inv-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inv-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .inv-scroll-hint {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin: 0.4rem 0.75rem 0;
+  }
+
+  /* make sure table actually needs to scroll */
+  .inv-table-scroll table {
+    min-width: 720px;
+  }
+}
+//spaceUsage
+
+/* spaces-usage.css */
+
+.spaces-usage-page {
+  padding: 1.5rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.tab.active {
+  background: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.space-button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.space-button {
+  text-align: left;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.space-button.selected {
+  border-color: #444;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.space-button-header {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.space-status-pill {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.space-status-pill.free {
+  background: #e6f7ea;
+  color: #1e7a33;
+}
+
+.space-status-pill.busy {
+  background: #fdeaea;
+  color: #b32424;
+}
+
+.space-button-sub {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.space-detail-panel {
+  margin-top: 1rem;
+  border-top: 1px solid #ddd;
+  padding-top: 1rem;
+}
+
+.space-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Timeline */
+
+.timeline-wrapper {
+  margin-top: 0.5rem;
+}
+
+.timeline-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-scale-mark {
+  flex: 1;
+  text-align: center;
+}
+
+.timeline-bar {
+  position: relative;
+  height: 60px;
+  border-radius: 6px;
+  background: #f2f2f2;
+  overflow: hidden;
+}
+
+.timeline-event {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.7rem;
+  background: #cfd8ff;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.timeline-event-label {
+  pointer-events: none;
+}
+
+.timeline-now-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ff0000;
+}
+
+/* Free slots */
+
+.free-slots-section {
+  margin-top: 1rem;
+}
+
+.free-slots-list {
+  font-size: 0.85rem;
+  padding-left: 1rem;
+}
+
+.free-slots-empty {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* All spaces table */
+
+.all-spaces-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.all-spaces-table th,
+.all-spaces-table td {
+  border: 1px solid #ddd;
+  padding: 0.4rem 0.5rem;
+  vertical-align: top;
+}
+
+.all-spaces-table th {
+  background: #f7f7f7;
+}
+
+.cell-busy {
+  background: #fff6f0;
+}
+
+.cell-free {
+  background: #f5fff6;
+  color: #555;
+}
+
+.cell-events-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.cell-free-label {
+  font-style: italic;
+  color: #777;
+}
+/* ===== How to CAD page styling ===== */
+
+.cad-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.cad-heading {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.cad-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.75;
+  margin-bottom: 1rem;
+}
+
+.cad-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Wrapper for each section */
+.cad-section {
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.5); /* slate-900-ish */
+  border: 1px solid rgba(148, 163, 184, 0.35); /* slate-400-ish */
+  overflow: hidden;
+}
+
+/* When open, make it slightly brighter */
+.cad-section-open {
+  border-color: rgba(96, 165, 250, 0.9); /* blue-ish accent */
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+}
+
+/* Header button (reuses .btn base but full-width) */
+.cad-toggle {
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.85rem;
+  background: transparent;
+}
+
+/* Title text inside button */
+.cad-toggle-title {
+  text-align: left;
+}
+
+/* Little chevron icon */
+.cad-toggle-icon {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+/* Body content */
+.cad-body {
+  padding: 0.7rem 0.9rem 0.8rem;
+  font-size: 0.85rem;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid rgba(30, 64, 175, 0.6);
+}
+
+.cad-body p {
+  margin: 0 0 0.4rem;
+}
+
+.cad-body ul,
+.cad-body ol {
+  padding-left: 1.1rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.cad-body li {
+  margin-bottom: 0.15rem;
+}
