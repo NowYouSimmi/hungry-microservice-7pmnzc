@@ -18,8 +18,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit"
   },
   "browserslist": [
     ">0.2%",
