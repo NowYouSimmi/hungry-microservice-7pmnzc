@@ -48,6 +48,11 @@ export default function Home({ setPage }) {
           📋 Production Status
         </button>
 
+        {/* ⭐ NEW POSITION: Spaces Usage (moved here) */}
+        <button className="btn" onClick={() => setPage("spaces-usage")}>
+          📌 Spaces Usage
+        </button>
+
         {/* 5. Venue Information */}
         <button className="btn" onClick={() => setPage("venues")}>
           🏟 Venue Information
@@ -84,11 +89,6 @@ export default function Home({ setPage }) {
           title="View and log working hours"
         >
           ⏱ Hours
-        </button>
-
-        {/* (Optional) Spaces Usage — currently placed below all the requested items */}
-        <button className="btn" onClick={() => setPage("spaces-usage")}>
-          📌 Spaces Usage
         </button>
       </div>
 
