@@ -236,7 +236,11 @@ function TwoColumnSpecs({
           ))}
         </div>
         <div
-          style={{ display: "grid", gap: "6px", ["--labelW"]: labelWidthRight }}
+          style={{
+            display: "grid",
+            gap: "6px",
+            ["--labelW"]: labelWidthRight,
+          }}
         >
           {right.map(({ label, value }, i) => (
             <InfoRow key={`${label}-${i}`} label={label} value={value} />
@@ -410,6 +414,137 @@ const VIDEO_DISPLAY_ORDER = [
 ];
 
 /* =========================================================
+   DEPT FETCH HELPERS (simplified: 1 request per dept)
+   ========================================================= */
+function monthDayVariants(start) {
+  const mm = start.toLocaleString("en-US", { month: "short" });
+  const d = start.getDate();
+  const dd = String(d).padStart(2, "0");
+  return [
+    `${mm} ${d}`,
+    `${mm} ${dd}`,
+    `${d} ${mm}`,
+    `${dd} ${mm}`,
+    `${mm}-${d}`,
+    `${mm}-${dd}`,
+  ];
+}
+
+function firstItemsAsObjects(json) {
+  const items = Array.isArray(json?.items) ? json.items : [];
+  const headers = Array.isArray(json?.headers) ? json.headers : null;
+
+  if (headers) {
+    return items.map((row) => {
+      if (Array.isArray(row)) {
+        const obj = {};
+        headers.forEach((h, i) => (obj[String(h || "").trim()] = row[i]));
+        return obj;
+      }
+      return row && typeof row === "object" ? row : { value: row };
+    });
+  }
+
+  return items.map((row, idx) => {
+    if (row && typeof row === "object" && !Array.isArray(row)) return row;
+    if (Array.isArray(row)) {
+      const obj = {};
+      row.forEach((v, i) => (obj[`Col ${i + 1}`] = v));
+      return obj;
+    }
+    return { value: row, index: idx };
+  });
+}
+
+function nonEmptyCount(obj) {
+  return Object.values(obj).reduce(
+    (n, v) => (v != null && String(v).trim() !== "" ? n + 1 : n),
+    0
+  );
+}
+
+function scoreCandidate(obj, showName, venueLabel, start) {
+  const sname = String(showName || "").toLowerCase();
+  const svenue = String(venueLabel || "").toLowerCase();
+
+  const nameFields = ["Show Name", "Show", "Title", "name"];
+  const venueFields = ["Venue", "Location", "venue"];
+  const dateFields = ["Dates", "Date", "date", "When", "Event Date"];
+
+  let score = 0;
+
+  // Name match
+  for (const f of nameFields) {
+    if (obj[f] && String(obj[f]).toLowerCase().includes(sname)) {
+      score += 4;
+      break;
+    }
+  }
+
+  // Venue match
+  for (const f of venueFields) {
+    if (obj[f] && String(obj[f]).toLowerCase().includes(svenue)) {
+      score += 3;
+      break;
+    }
+  }
+
+  // Date-ish match
+  if (start) {
+    const y = String(start.getFullYear());
+    const mds = monthDayVariants(start);
+    const hay = dateFields
+      .map((f) => (obj[f] ? String(obj[f]).toLowerCase() : ""))
+      .join(" | ");
+
+    if (hay) {
+      if (hay.includes(y.toLowerCase())) score += 2;
+      for (const md of mds) {
+        if (hay.includes(md.toLowerCase())) {
+          score += 2;
+          break;
+        }
+      }
+    }
+  }
+
+  // Reward "rich" rows
+  score += Math.min(5, Math.floor(nonEmptyCount(obj) / 5));
+  return score;
+}
+
+// NEW: single-call version – fetch whole tab once, pick best row in React
+async function fetchBestRowSimple(
+  url,
+  { action, showName, venueLabel, start }
+) {
+  const params = new URLSearchParams();
+  if (action) params.set("action", action);
+  params.set("cb", Date.now());
+
+  const fullUrl = `${url}?${params.toString()}`;
+  const r = await fetch(fullUrl);
+  const json = await r.json();
+  const objs = firstItemsAsObjects(json);
+
+  let best = null;
+  let bestScore = -1;
+
+  for (const obj of objs) {
+    const sc = scoreCandidate(obj, showName, venueLabel, start);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best = { obj, queryUrl: fullUrl, raw: json };
+    }
+  }
+
+  return {
+    best: best || null,
+    tried: [fullUrl],
+  };
+}
+
+/* =========================================================
    MAIN COMPONENT
    ========================================================= */
 export default function ShowSpecs() {
@@ -572,207 +707,6 @@ export default function ShowSpecs() {
   ]);
 
   /* =========================================================
-     DEPT FETCH HELPERS (robust matching + fetch-all fallback)
-     ========================================================= */
-  function monthDayVariants(start) {
-    const mm = start.toLocaleString("en-US", { month: "short" });
-    const d = start.getDate();
-    const dd = String(d).padStart(2, "0");
-    return [
-      `${mm} ${d}`,
-      `${mm} ${dd}`,
-      `${d} ${mm}`,
-      `${dd} ${mm}`,
-      `${mm}-${d}`,
-      `${mm}-${dd}`,
-    ];
-  }
-
-  function firstItemsAsObjects(json) {
-    const items = Array.isArray(json?.items) ? json.items : [];
-    const headers = Array.isArray(json?.headers) ? json.headers : null;
-
-    if (headers) {
-      return items.map((row) => {
-        if (Array.isArray(row)) {
-          const obj = {};
-          headers.forEach((h, i) => (obj[String(h || "").trim()] = row[i]));
-          return obj;
-        }
-        return row && typeof row === "object" ? row : { value: row };
-      });
-    }
-
-    return items.map((row, idx) => {
-      if (row && typeof row === "object" && !Array.isArray(row)) return row;
-      if (Array.isArray(row)) {
-        const obj = {};
-        row.forEach((v, i) => (obj[`Col ${i + 1}`] = v));
-        return obj;
-      }
-      return { value: row, index: idx };
-    });
-  }
-
-  async function fetchAllRows(url, { action } = {}) {
-    const p = new URLSearchParams();
-    if (action) p.set("action", action);
-    p.set("cb", Date.now());
-    const full = `${url}?${p.toString()}`;
-    const r = await fetch(full, { cache: "no-store" });
-    const json = await r.json();
-    return { objs: firstItemsAsObjects(json), raw: json, url: full };
-  }
-
-  function nonEmptyCount(obj) {
-    return Object.values(obj).reduce(
-      (n, v) => (v != null && String(v).trim() !== "" ? n + 1 : n),
-      0
-    );
-  }
-
-  function scoreCandidate(obj, showName, venueLabel, start) {
-    const sname = String(showName || "").toLowerCase();
-    const svenue = String(venueLabel || "").toLowerCase();
-
-    const nameFields = ["Show Name", "Show", "Title", "name"];
-    const venueFields = ["Venue", "Location", "venue"];
-    const dateFields = ["Dates", "Date", "date", "When", "Event Date"];
-
-    let score = 0;
-
-    for (const f of nameFields) {
-      if (obj[f] && String(obj[f]).toLowerCase().includes(sname)) {
-        score += 4;
-        break;
-      }
-    }
-
-    for (const f of venueFields) {
-      if (obj[f] && String(obj[f]).toLowerCase().includes(svenue)) {
-        score += 3;
-        break;
-      }
-    }
-
-    if (start) {
-      const y = String(start.getFullYear());
-      const mds = monthDayVariants(start);
-      const hay = dateFields
-        .map((f) => (obj[f] ? String(obj[f]).toLowerCase() : ""))
-        .join(" | ");
-
-      if (hay) {
-        if (hay.includes(y.toLowerCase())) score += 2;
-        for (const md of mds) {
-          if (hay.includes(md.toLowerCase())) {
-            score += 2;
-            break;
-          }
-        }
-      }
-    }
-
-    score += Math.min(5, Math.floor(nonEmptyCount(obj) / 5));
-    return score;
-  }
-
-  function buildParamVariants({ showName, venueLabel, start }) {
-    const variants = [];
-    const y = start ? String(start.getFullYear()) : "";
-    const iso = start
-      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}-${String(start.getDate()).padStart(2, "0")}`
-      : "";
-
-    const mds = start ? monthDayVariants(start) : [""];
-
-    for (const md of mds) {
-      const p = new URLSearchParams();
-      if (showName) p.set("name", showName);
-      if (venueLabel) p.set("venue", venueLabel);
-      if (md) p.set("date_md", md);
-      if (y) p.set("year", y);
-      if (iso) p.set("date_iso", iso);
-      p.set("cb", Date.now());
-      variants.push(p);
-    }
-
-    for (const md of mds) {
-      const p = new URLSearchParams();
-      if (showName) p.set("name", showName);
-      if (md) p.set("date_md", md);
-      if (y) p.set("year", y);
-      if (iso) p.set("date_iso", iso);
-      p.set("cb", Date.now());
-      variants.push(p);
-    }
-
-    return variants;
-  }
-
-  async function fetchBestRow(url, baseParamsList, extra = {}) {
-    const tried = [];
-    let best = null;
-    let bestScore = -1;
-
-    for (const params of baseParamsList) {
-      const full = new URLSearchParams(params);
-      if (extra && extra.action) full.set("action", extra.action);
-
-      const queryUrl = `${url}?${full.toString()}`;
-      tried.push(queryUrl);
-
-      const r = await fetch(queryUrl, { cache: "no-store" });
-      const json = await r.json();
-      const objs = firstItemsAsObjects(json);
-      if (!objs.length) continue;
-
-      for (const obj of objs) {
-        const sc = scoreCandidate(
-          obj,
-          extra.showName,
-          extra.venueLabel,
-          extra.start
-        );
-        if (sc > bestScore) {
-          bestScore = sc;
-          best = { obj, queryUrl, raw: json };
-        }
-      }
-      if (bestScore >= 8) break;
-    }
-
-    if (best) return { best, tried };
-
-    const all = await fetchAllRows(url, { action: extra.action });
-    tried.push(all.url);
-
-    if (Array.isArray(all.objs) && all.objs.length) {
-      for (const obj of all.objs) {
-        const sc = scoreCandidate(
-          obj,
-          extra.showName,
-          extra.venueLabel,
-          extra.start
-        );
-        if (sc > bestScore) {
-          bestScore = sc;
-          best = {
-            obj,
-            queryUrl: all.url + "  // (all rows, client-side matched)",
-            raw: all.raw,
-          };
-        }
-      }
-    }
-
-    return { best, tried };
-  }
-
-  /* =========================================================
      LOADERS
      ========================================================= */
   async function loadLightingForShow(show) {
@@ -792,8 +726,9 @@ export default function ShowSpecs() {
       const venueLabel = String(show.venue || show["Venue"] || "").trim();
       const { start } = normalizeDates(show.dates);
 
-      const variants = buildParamVariants({ showName, venueLabel, start });
-      const { best, tried } = await fetchBestRow(LIGHTING_URL, variants, {
+      const { best, tried } = await fetchBestRowSimple(LIGHTING_URL, {
+        // keep no action here unless your LX script expects one
+        action: undefined,
         showName,
         venueLabel,
         start,
@@ -854,8 +789,7 @@ export default function ShowSpecs() {
       const venueLabel = String(show.venue || show["Venue"] || "").trim();
       const { start } = normalizeDates(show.dates);
 
-      const variants = buildParamVariants({ showName, venueLabel, start });
-      const { best, tried } = await fetchBestRow(AUDIO_URL, variants, {
+      const { best, tried } = await fetchBestRowSimple(AUDIO_URL, {
         action: "audio",
         showName,
         venueLabel,
@@ -916,8 +850,7 @@ export default function ShowSpecs() {
       const venueLabel = String(show.venue || show["Venue"] || "").trim();
       const { start } = normalizeDates(show.dates);
 
-      const variants = buildParamVariants({ showName, venueLabel, start });
-      const { best, tried } = await fetchBestRow(VIDEO_URL, variants, {
+      const { best, tried } = await fetchBestRowSimple(VIDEO_URL, {
         action: "video",
         showName,
         venueLabel,
@@ -961,21 +894,14 @@ export default function ShowSpecs() {
     }
   }
 
-  // Load when Lighting / Audio / Video tab is active
+  // NEW: prefetch all depts when a show is selected (runs once per show)
   useEffect(() => {
     if (!selectedShow) return;
-    if (activeDept === "Lighting") loadLightingForShow(selectedShow);
-  }, [selectedShow, activeDept]);
-
-  useEffect(() => {
-    if (!selectedShow) return;
-    if (activeDept === "Audio") loadAudioForShow(selectedShow);
-  }, [selectedShow, activeDept]);
-
-  useEffect(() => {
-    if (!selectedShow) return;
-    if (activeDept === "Video") loadVideoForShow(selectedShow);
-  }, [selectedShow, activeDept]);
+    loadLightingForShow(selectedShow);
+    loadAudioForShow(selectedShow);
+    loadVideoForShow(selectedShow);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShow]);
 
   /* =========================================================
      DETAIL PANEL HELPER
