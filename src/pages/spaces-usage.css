@@ -305,3 +305,7 @@
   color: #ffffff !important;
   font-weight: 600;
 }
+/* Ensure the React DatePicker popper floats ABOVE everything */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
