@@ -47,6 +47,12 @@ const APPROVED_LOGINS = [
   "lc4938",
   "ch4360",
   "jp4854",
+  "bl2580",
+  "lg3115",
+  "ma10073",
+  "sam9644",
+  "ld72",
+  "sa9252",
 ];
 
 // ✅ Only these NetIDs can view restricted pages (Hours + POs)
