@@ -1,6 +1,8 @@
 // src/pages/SpacesUsage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import "./spaces-usage.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const SPACES = [
   { key: "redTheatre", label: "Red Theatre" },
@@ -14,8 +16,14 @@ const SPACES = [
   { key: "other", label: "Other" },
 ];
 
-const DAY_START_MINUTES = 8 * 60;
-const DAY_END_MINUTES = 24 * 60;
+// ----- Day range: keep these in sync with the scale -----
+const DAY_START_HOUR = 8; // 08:00
+const DAY_END_HOUR = 24; // 24:00 (midnight)
+
+// Derived minute values
+const DAY_START_MINUTES = DAY_START_HOUR * 60;
+const DAY_END_MINUTES = DAY_END_HOUR * 60;
+const DAY_TOTAL_MINUTES = DAY_END_MINUTES - DAY_START_MINUTES;
 
 /* ---------- Date helpers ---------- */
 
@@ -123,6 +131,7 @@ function computeDateRange(selectedDateStr, mode) {
 
 /* ---------- Time + event helpers ---------- */
 
+// 24h "HH:MM" → minutes
 function parseTimeToMinutes(timeStr) {
   if (!timeStr) return null;
   const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})$/);
@@ -132,6 +141,29 @@ function parseTimeToMinutes(timeStr) {
   return hours * 60 + minutes;
 }
 
+// "10am", "7:30pm" → minutes
+function parseAmPmTimeToMinutes(label) {
+  if (!label) return null;
+
+  const match = label.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
+  if (!match) return null;
+
+  let [, hStr, mStr, ampm] = match;
+  let hours = parseInt(hStr, 10);
+  const minutes = mStr ? parseInt(mStr, 10) : 0;
+
+  ampm = ampm.toLowerCase();
+
+  if (ampm === "am") {
+    if (hours === 12) hours = 0; // 12am → 0
+  } else {
+    if (hours !== 12) hours += 12; // 1pm → 13, 12pm → 12
+  }
+
+  return hours * 60 + minutes;
+}
+
+// Parse "Title, 10am-10pm" (or "Title, All day") into events
 function parseCellToEvents(dateStr, spaceKey, cellValue) {
   if (!cellValue || !cellValue.trim()) return [];
 
@@ -143,36 +175,64 @@ function parseCellToEvents(dateStr, spaceKey, cellValue) {
   const events = [];
 
   for (const part of parts) {
-    const timeAndTitleMatch = part.match(
-      /^(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\s*(.*)$/
-    );
+    let titleStr = part;
+    let timePart = null;
 
-    if (timeAndTitleMatch) {
-      const [, startStr, endStr, titleStr] = timeAndTitleMatch;
-      const startMinutes = parseTimeToMinutes(startStr);
-      const endMinutes = parseTimeToMinutes(endStr);
-
-      events.push({
-        id: `${dateStr}-${spaceKey}-${startStr}-${endStr}-${titleStr}`.replace(
-          /\s+/g,
-          "_"
-        ),
-        date: dateStr,
-        spaceKey,
-        title: titleStr || "Untitled",
-        startMinutes,
-        endMinutes,
-      });
-    } else {
-      events.push({
-        id: `${dateStr}-${spaceKey}-${part}`.replace(/\s+/g, "_"),
-        date: dateStr,
-        spaceKey,
-        title: part,
-        startMinutes: DAY_START_MINUTES,
-        endMinutes: DAY_END_MINUTES,
-      });
+    // Split at last comma: "Title, 10am-10pm"
+    const lastCommaIdx = part.lastIndexOf(",");
+    if (lastCommaIdx !== -1) {
+      titleStr = part.slice(0, lastCommaIdx).trim();
+      timePart = part.slice(lastCommaIdx + 1).trim();
     }
+
+    let startMinutes = DAY_START_MINUTES;
+    let endMinutes = DAY_END_MINUTES;
+
+    if (timePart) {
+      if (/all\s*day/i.test(timePart)) {
+        // All day → full bar (8:00–24:00)
+        startMinutes = DAY_START_MINUTES;
+        endMinutes = DAY_END_MINUTES;
+      } else {
+        // "10am-10pm" or "10:30am – 1pm"
+        const rangeMatch = timePart.match(/^(.+?)[-–](.+)$/);
+        if (rangeMatch) {
+          const startLabel = rangeMatch[1].trim();
+          const endLabel = rangeMatch[2].trim();
+
+          const parsedStart = parseAmPmTimeToMinutes(startLabel);
+          const parsedEnd = parseAmPmTimeToMinutes(endLabel);
+
+          if (parsedStart != null && parsedEnd != null) {
+            startMinutes = parsedStart;
+            endMinutes = parsedEnd;
+          }
+        } else {
+          // Single time "10am" → assume 2-hour block
+          const single = parseAmPmTimeToMinutes(timePart);
+          if (single != null) {
+            startMinutes = single;
+            endMinutes = Math.min(single + 120, DAY_END_MINUTES);
+          }
+        }
+      }
+    }
+
+    // Clamp to chart range just in case
+    startMinutes = Math.max(startMinutes, DAY_START_MINUTES);
+    endMinutes = Math.min(endMinutes, DAY_END_MINUTES);
+
+    events.push({
+      id: `${dateStr}-${spaceKey}-${titleStr}-${startMinutes}-${endMinutes}`.replace(
+        /\s+/g,
+        "_"
+      ),
+      date: dateStr,
+      spaceKey,
+      title: titleStr || "Untitled",
+      startMinutes,
+      endMinutes,
+    });
   }
 
   return events;
@@ -315,29 +375,36 @@ function SpaceDayTimeline({ events, dateStr }) {
   const eventsForDay = [...events].sort(
     (a, b) => a.startMinutes - b.startMinutes
   );
-  const totalMinutes = DAY_END_MINUTES - DAY_START_MINUTES;
 
   return (
     <div className="timeline-wrapper">
+      {/* Time scale */}
       <div className="timeline-scale">
-        {Array.from({ length: 17 }).map((_, idx) => {
-          const hour = 8 + idx;
-          if (hour > 24) return null;
+        {Array.from({
+          length: (DAY_END_HOUR - DAY_START_HOUR) / 2, // 2-hour blocks
+        }).map((_, idx) => {
+          const blockStart = DAY_START_HOUR + idx * 2; // 8,10,12,...
+          const blockEnd = blockStart + 2; // 10,12,14,...
+          const label = `${blockStart.toString().padStart(2, "0")}–${blockEnd
+            .toString()
+            .padStart(2, "0")}`;
+
           return (
-            <div key={hour} className="timeline-scale-mark">
-              <span>{hour.toString().padStart(2, "0")}:00</span>
+            <div key={blockStart} className="timeline-scale-mark">
+              <span>{label}</span>
             </div>
           );
         })}
       </div>
 
-      <div className="timeline-bar">
+      {/* Bar with events */}
+      <div className="timeline-bar" style={{ position: "relative" }}>
         {eventsForDay.map((ev) => {
           const clampedStart = Math.max(ev.startMinutes, DAY_START_MINUTES);
           const clampedEnd = Math.min(ev.endMinutes, DAY_END_MINUTES);
           const offset =
-            ((clampedStart - DAY_START_MINUTES) / totalMinutes) * 100;
-          const width = ((clampedEnd - clampedStart) / totalMinutes) * 100;
+            ((clampedStart - DAY_START_MINUTES) / DAY_TOTAL_MINUTES) * 100;
+          const width = ((clampedEnd - clampedStart) / DAY_TOTAL_MINUTES) * 100;
 
           return (
             <div
@@ -356,22 +423,27 @@ function SpaceDayTimeline({ events, dateStr }) {
           );
         })}
 
-        {isToday(dateStr) && <NowMarker totalMinutes={totalMinutes} />}
+        {isToday(dateStr) && <NowMarker />}
       </div>
     </div>
   );
 }
 
-function NowMarker({ totalMinutes }) {
+function NowMarker() {
   const now = new Date();
   const minutesNow = now.getHours() * 60 + now.getMinutes();
   const clamped = Math.min(
     Math.max(minutesNow, DAY_START_MINUTES),
     DAY_END_MINUTES
   );
-  const offset = ((clamped - DAY_START_MINUTES) / totalMinutes) * 100;
+  const offset = ((clamped - DAY_START_MINUTES) / DAY_TOTAL_MINUTES) * 100;
 
-  return <div className="timeline-now-marker" style={{ left: `${offset}%` }} />;
+  return (
+    <div
+      className="timeline-now-marker"
+      style={{ left: `${offset}%`, position: "absolute" }}
+    />
+  );
 }
 
 function FreeSlotsList({ events, minDurationMinutes }) {
@@ -399,6 +471,7 @@ function FreeSlotsList({ events, minDurationMinutes }) {
 }
 
 // All Spaces table, filtered by a computed date range
+// One row per DATE, even if multiple gsheet rows exist for that date.
 function AllSpacesView({ rows, events, range }) {
   if (!range || !range.startStr || !range.endStr) {
     return (
@@ -425,6 +498,11 @@ function AllSpacesView({ rows, events, range }) {
     );
   }
 
+  // Unique dates only → one table row per date
+  const uniqueDates = Array.from(
+    new Set(filteredRows.map((row) => row.date).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
+
   return (
     <div className="all-spaces-view">
       <div className="range-label">{label}</div>
@@ -441,18 +519,20 @@ function AllSpacesView({ rows, events, range }) {
             </tr>
           </thead>
           <tbody>
-            {filteredRows.map((row) => (
-              <tr key={row.date} className="spaces-row">
-                {/* Date column – grey like header, pretty formatted */}
+            {uniqueDates.map((dateStr) => (
+              <tr key={dateStr} className="spaces-row">
+                {/* Date column */}
                 <td className="spaces-cell spaces-date-cell">
-                  {formatPrettyDate(row.date)}
+                  {formatPrettyDate(dateStr)}
                 </td>
 
                 {SPACES.map((space) => {
+                  // This collects ALL events for that date+space,
+                  // regardless of which raw row they came from.
                   const eventsForCell = getEventsForSpaceAndDate(
                     events,
                     space.key,
-                    row.date
+                    dateStr
                   );
                   const inUse = eventsForCell.length > 0;
 
@@ -579,10 +659,15 @@ export default function SpacesUsage() {
                   <h2>{selectedSpace?.label}</h2>
                   <label>
                     Date:{" "}
-                    <input
-                      type="date"
-                      value={selectedDateStr}
-                      onChange={(e) => setSelectedDateStr(e.target.value)}
+                    <DatePicker
+                      selected={parseISODate(selectedDateStr)}
+                      onChange={(date) => {
+                        if (date) {
+                          setSelectedDateStr(formatISODate(date)); // keep ISO for logic
+                        }
+                      }}
+                      dateFormat="dd-MM-yy"
+                      showPopperArrow={false}
                     />
                   </label>
                 </div>
@@ -605,15 +690,19 @@ export default function SpacesUsage() {
 
           {activeTab === "allSpaces" && (
             <>
-              {/* Range controls only in All Spaces view */}
               <div className="all-spaces-controls">
                 <div className="all-spaces-controls-row">
                   <label>
                     Date:{" "}
-                    <input
-                      type="date"
-                      value={selectedDateStr}
-                      onChange={(e) => setSelectedDateStr(e.target.value)}
+                    <DatePicker
+                      selected={parseISODate(selectedDateStr)}
+                      onChange={(date) => {
+                        if (date) {
+                          setSelectedDateStr(formatISODate(date));
+                        }
+                      }}
+                      dateFormat="dd-MM-yy"
+                      showPopperArrow={false}
                     />
                   </label>
 
